@@ -1,7 +1,6 @@
-package com.codepath.nytarticlesearch;
+package com.codepath.nytarticlesearch.adapters;
 
 import android.content.Context;
-import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -10,9 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.codepath.nytarticlesearch.R;
+import com.codepath.nytarticlesearch.models.Article;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

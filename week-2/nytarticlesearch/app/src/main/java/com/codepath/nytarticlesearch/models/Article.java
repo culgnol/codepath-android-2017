@@ -1,4 +1,4 @@
-package com.codepath.nytarticlesearch;
+package com.codepath.nytarticlesearch.models;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -6,8 +6,6 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-
-import static android.os.Build.VERSION_CODES.M;
 
 /**
  * Created by culgnol on 9/10/17.
