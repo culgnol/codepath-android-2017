@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -33,6 +34,7 @@ public class SearchActivity extends AppCompatActivity {
     Button btSearch;
 
     ArrayList<Article> articles;
+    ArticleArrayAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +53,8 @@ public class SearchActivity extends AppCompatActivity {
         btSearch = (Button) findViewById(R.id.btSearch);
 
         articles = new ArrayList<>();
-
+        adapter = new ArticleArrayAdapter(this, articles);
+        gvResults.setAdapter(adapter);
     }
 
     public void onArticleSearch(View view) {
@@ -79,6 +82,7 @@ public class SearchActivity extends AppCompatActivity {
                     // Log.d("DEBUG", articleJsonResults.toString());
                     articles.addAll(Article.fromJsonArray(articleJsonResults));
                     Log.d("DEBUG", articles.toString());
+                    adapter.notifyDataSetChanged(); // not needed if using "adapter.addAll" above
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
