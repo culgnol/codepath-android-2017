@@ -7,4 +7,11 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_filter"
+        android:title="Filter"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_action_filter"
+        app:showAsAction="ifRoom" />
 </menu>
