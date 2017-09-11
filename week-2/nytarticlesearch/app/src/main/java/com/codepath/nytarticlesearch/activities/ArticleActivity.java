@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.codepath.nytarticlesearch.R;
 
@@ -23,6 +24,13 @@ public class ArticleActivity extends AppCompatActivity {
 
         WebView webView = (WebView) findViewById(R.id.wvArticle);
 
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                view.loadUrl(url);
+                return true;
+            }
+        });
         webView.loadUrl(url);
     }
 
