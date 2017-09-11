@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import static android.os.Build.VERSION_CODES.M;
@@ -14,7 +15,7 @@ import static android.os.Build.VERSION_CODES.M;
 
 /// Model
 
-public class Article {
+public class Article implements Serializable {
 
     String weburl;
     String headline;
