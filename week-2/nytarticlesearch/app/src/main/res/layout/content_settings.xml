@@ -22,11 +22,11 @@
         android:id="@+id/etDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
         android:ems="10"
-        android:inputType="date" />
+        android:inputType="none"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:id="@+id/tvSortOrder"
@@ -42,7 +42,8 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/etDate"
         android:layout_alignStart="@+id/etDate"
-        android:layout_alignTop="@+id/tvSortOrder" />
+        android:layout_alignTop="@+id/tvSortOrder"
+        android:entries="@array/sort_order"/>
 
     <TextView
         android:id="@+id/tvNewsDeskValues"

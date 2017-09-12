@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -19,7 +20,6 @@ import com.codepath.nytarticlesearch.R;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +36,10 @@ public class SearchActivity extends AppCompatActivity {
 
     ArrayList<Article> articles;
     ArticleArrayAdapter adapter;
+
+    static final int REQUEST_CODE_SETTINGS = 100;
+
+    Intent settingsBundle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,13 +92,41 @@ public class SearchActivity extends AppCompatActivity {
         RequestParams params = new RequestParams();
         params.put("api-key", apikey);
         params.put("page", 0);
-        params.put("q", query);
+
+        String newsDeskItems = "";
+
+        if (settingsBundle != null) {
+            // sort order
+            params.put("sort", settingsBundle.getStringExtra("string_sortOrder"));
+
+            // news desk values
+            newsDeskItems = (settingsBundle.getBooleanExtra("bool_cbArts", false)) ? "\"Arts\"" : "";
+            newsDeskItems += (settingsBundle.getBooleanExtra("bool_cbFashionStyle", false)) ? " \"Fashion & Style\"" : "";
+            newsDeskItems += (settingsBundle.getBooleanExtra("bool_cbSports", false)) ? " \"Sports\"" : "";
+
+            if (!TextUtils.isEmpty(newsDeskItems)) {
+                query += "body:(\"" + query + "\")";
+                query += "%20AND%20news_desk:(" + newsDeskItems + ")";
+            }
+
+            params.put("fq", query);
+
+            // begin date
+            String strBeginDate = settingsBundle.getStringExtra("string_beginDate");
+            if (!TextUtils.isEmpty(strBeginDate)) {
+
+                params.put("begin_date", strBeginDate);
+            }
+        } else {
+            params.put("q", query);
+        }
 
         client.get(url, params, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d("DEBUG", response.toString());
                 JSONArray articleJsonResults = null;
+                articles.clear();
 
                 try {
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
@@ -134,6 +166,19 @@ public class SearchActivity extends AppCompatActivity {
 
     public void launchSettingsActivity() {
         Intent i = new Intent(this, SettingsActivity.class);
-        startActivity(i);
+        startActivityForResult(i, REQUEST_CODE_SETTINGS);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_SETTINGS) {
+            if (resultCode == RESULT_OK) {
+                // Do something with result
+                settingsBundle = data;
+                btSearch.performClick();
+            } else {
+                settingsBundle = null;
+            }
+        }
     }
 }
