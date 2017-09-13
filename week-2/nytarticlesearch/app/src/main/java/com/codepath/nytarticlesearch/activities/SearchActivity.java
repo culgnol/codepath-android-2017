@@ -28,6 +28,9 @@ import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
+import static com.codepath.nytarticlesearch.R.id.cbArts;
+import static com.codepath.nytarticlesearch.R.id.cbSports;
+
 public class SearchActivity extends AppCompatActivity {
 
     EditText etQuery;
@@ -118,6 +121,7 @@ public class SearchActivity extends AppCompatActivity {
                 params.put("begin_date", strBeginDate);
             }
         } else {
+            // general search
             params.put("q", query);
         }
 
@@ -166,6 +170,14 @@ public class SearchActivity extends AppCompatActivity {
 
     public void launchSettingsActivity() {
         Intent i = new Intent(this, SettingsActivity.class);
+        // restore settings if exists
+        if (settingsBundle != null) {
+            i.putExtra("string_beginDate", settingsBundle.getStringExtra("string_beginDate"));
+            i.putExtra("string_sortOrder", settingsBundle.getStringExtra("string_sortOrder"));
+            i.putExtra("bool_cbArts", settingsBundle.getBooleanExtra("bool_cbArts", false));
+            i.putExtra("bool_cbSports", settingsBundle.getBooleanExtra("bool_cbSports", false));
+            i.putExtra("bool_cbFashionStyle", settingsBundle.getBooleanExtra("bool_cbFashionStyle", false));
+        }
         startActivityForResult(i, REQUEST_CODE_SETTINGS);
     }
 

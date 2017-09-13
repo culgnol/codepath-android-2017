@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -41,6 +42,18 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         dateFormatter = new SimpleDateFormat("yyyyMMdd", Locale.US);
 
         setupViews();
+
+        if (getIntent().getExtras() != null) {
+            restoreSettings();
+        }
+    }
+
+    public void restoreSettings() {
+        etBeginDate.setText(getIntent().getStringExtra("string_beginDate"));
+        sSortOrder.setSelection(((ArrayAdapter)sSortOrder.getAdapter()).getPosition(getIntent().getStringExtra("string_sortOrder")));
+        cbArts.setChecked(getIntent().getBooleanExtra("bool_cbArts", false));
+        cbFashionStyle.setChecked(getIntent().getBooleanExtra("bool_cbFashionStyle", false));
+        cbSports.setChecked(getIntent().getBooleanExtra("bool_cbSports", false));
     }
 
     public void setupViews() {
