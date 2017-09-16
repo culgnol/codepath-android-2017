@@ -1,5 +1,6 @@
 package com.codepath.nytarticlesearch.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,11 +10,13 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 
+import com.codepath.nytarticlesearch.adapters.EndlessScrollListener;
 import com.codepath.nytarticlesearch.models.Article;
 import com.codepath.nytarticlesearch.adapters.ArticleArrayAdapter;
 import com.codepath.nytarticlesearch.R;
@@ -43,6 +46,7 @@ public class SearchActivity extends AppCompatActivity {
     static final int REQUEST_CODE_SETTINGS = 100;
 
     Intent settingsBundle;
+    RequestParams requestParams;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,26 +85,56 @@ public class SearchActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
+        gvResults.setOnScrollListener(new EndlessScrollListener() {
+            @Override
+            public boolean onLoadMore(int page, int totalItemsCount) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to your AdapterView
+                loadNextDataFromApi(page);
+                // or loadNextDataFromApi(totalItemsCount);
+                return true; // ONLY if more data is actually being loaded; false otherwise.
+            }
+        });
+    }
+
+    // Append the next page of data into the adapter
+    // This method probably sends out a network request and appends new data items to your adapter.
+    public void loadNextDataFromApi(int offset) {
+        // Send an API request to retrieve appropriate paginated data
+        //  --> Send the request including an offset value (i.e `page`) as a query parameter.
+        //  --> Deserialize and construct new model objects from the API response
+        //  --> Append the new data objects to the existing set of items inside the array of items
+        //  --> Notify the adapter of the new items made with `notifyDataSetChanged()`
+
+        if (requestParams.has("page")) {
+            requestParams.remove("page");
+        }
+
+        requestParams.put("page", offset);
+        Log.d("DEBUG", "Page request: " + offset);
+
+        makeArticleApiRequest(requestParams);
     }
 
     public void onArticleSearch(View view) {
+        // new search
+        requestParams = new RequestParams();
+        articles.clear();
+        adapter.notifyDataSetChanged();
+
+        // default page
+        requestParams.put("page", 0);
+
+        // get query string
         String query = etQuery.getText().toString();
 
-        //Toast.makeText(this, "Searching for" + query, Toast.LENGTH_SHORT);
-
-        AsyncHttpClient client = new AsyncHttpClient();
-        String url = "http://api.nytimes.com/svc/search/v2/articlesearch.json";
-        String apikey = "6c549ccbe8a24343a19937b21aeaf2fb";
-
-        RequestParams params = new RequestParams();
-        params.put("api-key", apikey);
-        params.put("page", 0);
-
+        // Restore filter settings if found
         String newsDeskItems = "";
 
         if (settingsBundle != null) {
             // sort order
-            params.put("sort", settingsBundle.getStringExtra("string_sortOrder"));
+            requestParams.put("sort", settingsBundle.getStringExtra("string_sortOrder"));
 
             // news desk values
             newsDeskItems = (settingsBundle.getBooleanExtra("bool_cbArts", false)) ? "\"Arts\"" : "";
@@ -112,25 +146,41 @@ public class SearchActivity extends AppCompatActivity {
                 query += "%20AND%20news_desk:(" + newsDeskItems + ")";
             }
 
-            params.put("fq", query);
+            requestParams.put("fq", query);
 
             // begin date
             String strBeginDate = settingsBundle.getStringExtra("string_beginDate");
             if (!TextUtils.isEmpty(strBeginDate)) {
 
-                params.put("begin_date", strBeginDate);
+                requestParams.put("begin_date", strBeginDate);
             }
         } else {
             // general search
-            params.put("q", query);
+            requestParams.put("q", query);
         }
+
+        makeArticleApiRequest(requestParams);
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    public void makeArticleApiRequest(RequestParams params) {
+        AsyncHttpClient client = new AsyncHttpClient();
+        String url = "http://api.nytimes.com/svc/search/v2/articlesearch.json";
+        String apikey = "6c549ccbe8a24343a19937b21aeaf2fb";
+
+        if (params.has("api-key")) {
+            params.remove("api-key");
+        }
+
+        params.put("api-key", apikey);
 
         client.get(url, params, new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d("DEBUG", response.toString());
                 JSONArray articleJsonResults = null;
-                articles.clear();
 
                 try {
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
